@@ -1,0 +1,61 @@
+#!/bin/bash
+# ---for copying mpd playlists
+# this script takes an mpd playlist file and copies the tracks contained in it to another location
+# i use this that i can create a playlist using an mpd client and then copy it onto my mp3 player
+# it adds a counter to the filenames to preserve the order of tracks as they were in the playlist
+
+
+# usage: copyplaylist playlist destination_path
+# adds number to filename to keep order intact
+
+# todo: read the default mpd music path from mpd config file
+
+
+# if destination directory does not exist, create it
+if [ ! -d "$2" ]; then
+   mkdir $2
+fi
+
+# start file counter at 1
+i=1
+
+#echo $1
+
+while read name
+do
+  echo $name
+  #cp ~/Musique/"$name" $2
+ # printf "jjj%s\n" "$name" 
+
+ 
+  # this will add a leading 0 to numbers under 9 (01, 02 etc)
+  # assuming there are less than 100 tracks
+  # todo:  count number of files, if more than 100 add "00" (001, 002, etc)
+  #   using wc (wordcount) linewise piped to wc charwise (-1 for newline)
+  #   echo `cat $1 | wc -l | wc -m`    gives us number of digits +1 
+  #   we can then use a for loop? 
+  #   we need to keep adding zeros lead=$lead"0"  until the number of digits `echo $lead | wc -m` is the same as 
+  #   lead=""
+  #   
+  if [ $i -le 9 ]
+  then
+    lead="0"
+  else
+    lead=""
+  fi
+
+  # remove the directory part of the path
+  out1=`echo $name |sed 's/^.*\///'`
+  
+  # destinationpath/  number filename
+  out=`printf "%s/%s%s_%s\n" "$2" "$lead" "$i" "$out1"`
+  #echo $out
+  
+  # copy the file
+  cp ~/Musique/"$name" "$out"
+  
+  # increment file counter
+  i=`echo "$i + 1" |bc`
+
+# read line from playlist file
+done < "$1"
